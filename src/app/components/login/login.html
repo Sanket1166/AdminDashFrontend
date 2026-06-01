@@ -1,0 +1,137 @@
+<div class="login-wrapper">
+  <div class="glow-sphere sphere-1"></div>
+  <div class="glow-sphere sphere-2"></div>
+
+  <div class="login-container glass-panel">
+    <!-- Brand / Header -->
+    <div class="login-header">
+      <div class="logo-icon">⚡</div>
+      <h2 class="text-gradient">CorePortal</h2>
+      <p>Seamless Customer & Admin Operations</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="login-tabs">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="isLoginTab" 
+        (click)="toggleTab(true)">
+        Sign In
+      </button>
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="!isLoginTab" 
+        (click)="toggleTab(false)">
+        Register
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <form *ngIf="isLoginTab" (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form">
+      <div class="form-group">
+        <label class="form-label" for="login-username">Username</label>
+        <input 
+          type="text" 
+          id="login-username" 
+          name="username"
+          class="form-input" 
+          placeholder="Enter username (e.g. admin)" 
+          [(ngModel)]="loginData.username" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input 
+          type="password" 
+          id="login-password" 
+          name="password"
+          class="form-input" 
+          placeholder="Enter password (e.g. adminpassword)" 
+          [(ngModel)]="loginData.password" 
+          required>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Access Dashboard</span>
+        <div *ngIf="isLoading" class="spinner-small"></div>
+      </button>
+
+      <div class="quick-credentials glass-panel">
+        <strong>Demo Account Credentials:</strong>
+        <div>Username: <code>admin</code></div>
+        <div>Password: <code>adminpassword</code></div>
+      </div>
+    </form>
+
+    <!-- Register Form -->
+    <form *ngIf="!isLoginTab" (ngSubmit)="onRegister()" #registerForm="ngForm" class="login-form">
+      <div class="form-group">
+        <label class="form-label" for="reg-username">Username</label>
+        <input 
+          type="text" 
+          id="reg-username" 
+          name="username"
+          class="form-input" 
+          placeholder="Choose unique username" 
+          [(ngModel)]="registerData.username" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-fullname">Full Name</label>
+        <input 
+          type="text" 
+          id="reg-fullname" 
+          name="fullName"
+          class="form-input" 
+          placeholder="e.g. John Doe" 
+          [(ngModel)]="registerData.fullName" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email Address</label>
+        <input 
+          type="email" 
+          id="reg-email" 
+          name="email"
+          class="form-input" 
+          placeholder="e.g. john@company.com" 
+          [(ngModel)]="registerData.email" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Password</label>
+        <input 
+          type="password" 
+          id="reg-password" 
+          name="password"
+          class="form-input" 
+          placeholder="Create password" 
+          [(ngModel)]="registerData.password" 
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-confirmpass">Confirm Password</label>
+        <input 
+          type="password" 
+          id="reg-confirmpass" 
+          name="confirmPassword"
+          class="form-input" 
+          placeholder="Re-enter password" 
+          [(ngModel)]="registerData.confirmPassword" 
+          required>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Create Admin Account</span>
+        <div *ngIf="isLoading" class="spinner-small"></div>
+      </button>
+    </form>
+  </div>
+</div>

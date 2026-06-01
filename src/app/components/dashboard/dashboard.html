@@ -1,0 +1,143 @@
+<div class="app-container">
+  <!-- Side Navigation Bar -->
+  <app-navigation></app-navigation>
+
+  <!-- Main View -->
+  <main class="main-content">
+    
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+      <div>
+        <h1 class="text-gradient">Control Panel</h1>
+        <p>Real-time analytics and management operations</p>
+      </div>
+      <button class="btn-glass" (click)="fetchDashboardData()" [disabled]="isLoading()">
+        <svg class="refresh-icon" [class.spinning]="isLoading()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+        </svg>
+        Sync Data
+      </button>
+    </header>
+
+    <!-- Loading Spinner Overlay -->
+    <div class="loader-overlay" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <p>Syncing systems...</p>
+    </div>
+
+    <div *ngIf="!isLoading()" class="dashboard-body">
+      
+      <!-- Metrics Overview Cards -->
+      <section class="metrics-grid grid-cols-4">
+        
+        <!-- Total Customers Card -->
+        <div class="glass-card metric-card card-primary">
+          <div class="metric-icon">👤</div>
+          <div class="metric-info">
+            <h3>Total Customers</h3>
+            <span class="metric-value">{{ totalCustomers() }}</span>
+          </div>
+        </div>
+
+        <!-- Active Customers Card -->
+        <div class="glass-card metric-card card-success">
+          <div class="metric-icon">🟢</div>
+          <div class="metric-info">
+            <h3>Active Clients</h3>
+            <span class="metric-value">{{ activeCustomers() }}</span>
+          </div>
+        </div>
+
+        <!-- Inactive Customers Card -->
+        <div class="glass-card metric-card card-danger">
+          <div class="metric-icon">🔴</div>
+          <div class="metric-info">
+            <h3>Pending / Inactive</h3>
+            <span class="metric-value">{{ inactiveCustomers() }}</span>
+          </div>
+        </div>
+
+        <!-- Admins Card -->
+        <div class="glass-card metric-card card-accent">
+          <div class="metric-icon">🛡️</div>
+          <div class="metric-info">
+            <h3>Administrators</h3>
+            <span class="metric-value">{{ totalAdmins() }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics and Activity Split -->
+      <div class="dashboard-split grid-cols-2">
+        
+        <!-- SVG Visual Mock Chart -->
+        <section class="glass-panel analytics-panel">
+          <h2>Registration Trends</h2>
+          <p>Monthly analytics overview (growth chart)</p>
+          
+          <div class="chart-container">
+            <svg viewBox="0 0 500 200" class="svg-chart">
+              <!-- Grid Lines -->
+              <line x1="0" y1="50" x2="500" y2="50" stroke="rgba(255,255,255,0.05)" />
+              <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(255,255,255,0.05)" />
+              <line x1="0" y1="150" x2="500" y2="150" stroke="rgba(255,255,255,0.05)" />
+              
+              <!-- Gradient under the curve -->
+              <defs>
+                <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.4" />
+                  <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.0" />
+                </linearGradient>
+              </defs>
+              
+              <!-- Fill Area -->
+              <path d="M 0 200 L 0 150 Q 100 130 200 80 T 400 60 L 500 30 L 500 200 Z" fill="url(#chart-grad)" />
+              
+              <!-- Sparkline Line -->
+              <path d="M 0 150 Q 100 130 200 80 T 400 60 L 500 30" fill="none" stroke="var(--primary)" stroke-width="3" />
+              
+              <!-- Data nodes -->
+              <circle cx="200" cy="80" r="5" fill="var(--secondary)" />
+              <circle cx="400" cy="60" r="5" fill="var(--accent)" />
+              <circle cx="500" cy="30" r="5" fill="#fff" />
+            </svg>
+            
+            <div class="chart-labels">
+              <span>Q1</span>
+              <span>Q2</span>
+              <span>Q3</span>
+              <span>Q4</span>
+              <span>Active</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Activity Logs -->
+        <section class="glass-panel activity-panel">
+          <h2>Recent Signups</h2>
+          <p>Latest customer entries registered in the portal</p>
+
+          <div class="recent-list">
+            <div *ngIf="recentCustomers().length === 0" class="empty-state">
+              No recent signups.
+            </div>
+            
+            <div *ngFor="let customer of recentCustomers()" class="recent-item glass-card">
+              <div class="recent-avatar">
+                {{ customer.name.charAt(0) }}
+              </div>
+              <div class="recent-details">
+                <div class="recent-name">{{ customer.name }}</div>
+                <div class="recent-company">{{ customer.company || 'Private Client' }}</div>
+              </div>
+              <span class="badge" [class.badge-active]="customer.status === 'active'" [class.badge-inactive]="customer.status === 'inactive'">
+                {{ customer.status }}
+              </span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+</div>

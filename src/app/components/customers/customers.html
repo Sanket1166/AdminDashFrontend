@@ -1,0 +1,213 @@
+<div class="app-container">
+  <app-navigation></app-navigation>
+
+  <main class="main-content">
+    
+    <!-- Directory Header -->
+    <header class="directory-header">
+      <div>
+        <h1 class="text-gradient">Customers Directory</h1>
+        <p>Manage and monitor customer records, metadata, and service status</p>
+      </div>
+      <button class="btn-primary" (click)="openAddDrawer()">
+        <span class="btn-icon">+</span> Add Customer
+      </button>
+    </header>
+
+    <!-- Filters Control Block -->
+    <section class="filters-bar glass-panel">
+      <!-- Search Input -->
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input 
+          type="text" 
+          placeholder="Search customers by name, email, or company..." 
+          [(ngModel)]="searchQuery" 
+          (input)="onSearch()"
+          class="filter-search-input">
+      </div>
+
+      <!-- Status Dropdown -->
+      <div class="status-select-wrapper">
+        <select 
+          class="form-select status-select" 
+          [(ngModel)]="statusFilter" 
+          (change)="onFilterChange()">
+          <option value="">All Statuses</option>
+          <option value="active">Active Only</option>
+          <option value="inactive">Inactive Only</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Loading Indicators -->
+    <div class="loader-overlay" *ngIf="isLoading() && customers().length === 0">
+      <div class="spinner"></div>
+      <p>Retrieving client directory...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state-panel glass-panel" *ngIf="!isLoading() && customers().length === 0">
+      <div class="empty-icon">📁</div>
+      <h3>No Customers Found</h3>
+      <p>Try resetting search filters or register a new customer profile.</p>
+    </div>
+
+    <!-- Table Directory Grid -->
+    <div class="table-container glass-panel" *ngIf="customers().length > 0">
+      <table class="premium-table">
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Company</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Registered By</th>
+            <th style="text-align: right;">Operations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let customer of customers()">
+            <td>
+              <div class="customer-profile-cell">
+                <div class="table-avatar">{{ customer.name.charAt(0) }}</div>
+                <div class="name-desc">
+                  <div class="primary-name">{{ customer.name }}</div>
+                  <div class="secondary-email">{{ customer.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="company-text">{{ customer.company || '—' }}</span>
+            </td>
+            <td>
+              <span class="phone-text">{{ customer.phone || '—' }}</span>
+            </td>
+            <td>
+              <span class="badge" [class.badge-active]="customer.status === 'active'" [class.badge-inactive]="customer.status === 'inactive'">
+                {{ customer.status }}
+              </span>
+            </td>
+            <td>
+              <span class="creator-tag">@{{ customer.createdBy || 'system' }}</span>
+            </td>
+            <td style="text-align: right;">
+              <div class="table-actions">
+                <button class="action-btn edit" (click)="openEditDrawer(customer)" title="Edit Client">
+                  ✏️
+                </button>
+                <button class="action-btn delete" (click)="onDeleteCustomer(customer)" title="Delete Client">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sliding Sidebar Drawer Form -->
+    <div class="drawer-overlay" [class.open]="isDrawerOpen" (click)="closeDrawer()">
+      <div class="drawer-panel glass-panel" (click)="$event.stopPropagation()">
+        
+        <header class="drawer-header">
+          <h2>{{ isEditMode ? 'Update Client Record' : 'Register New Client' }}</h2>
+          <button class="close-btn" (click)="closeDrawer()">&times;</button>
+        </header>
+
+        <form (ngSubmit)="onSubmitForm()" class="drawer-form">
+          <div class="form-group">
+            <label class="form-label" for="cust-name">Full Name *</label>
+            <input 
+              type="text" 
+              id="cust-name" 
+              name="name" 
+              class="form-input" 
+              placeholder="e.g. Alice Vance"
+              [(ngModel)]="currentCustomer.name" 
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-email">Email Address *</label>
+            <input 
+              type="email" 
+              id="cust-email" 
+              name="email" 
+              class="form-input" 
+              placeholder="e.g. alice@techcorp.com"
+              [(ngModel)]="currentCustomer.email" 
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-phone">Phone Number</label>
+            <input 
+              type="text" 
+              id="cust-phone" 
+              name="phone" 
+              class="form-input" 
+              placeholder="e.g. +1 (555) 019-2834"
+              [(ngModel)]="currentCustomer.phone">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-company">Company</label>
+            <input 
+              type="text" 
+              id="cust-company" 
+              name="company" 
+              class="form-input" 
+              placeholder="e.g. TechCorp Solutions"
+              [(ngModel)]="currentCustomer.company">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-status">Service Status</label>
+            <select 
+              id="cust-status" 
+              name="status" 
+              class="form-select" 
+              [(ngModel)]="currentCustomer.status">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-address">Street Address</label>
+            <input 
+              type="text" 
+              id="cust-address" 
+              name="address" 
+              class="form-input" 
+              placeholder="e.g. 42 Main St, San Francisco, CA"
+              [(ngModel)]="currentCustomer.address">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-notes">Internal Notes</label>
+            <textarea 
+              id="cust-notes" 
+              name="notes" 
+              class="form-textarea" 
+              placeholder="Account descriptors, contract deals, upsell leads..."
+              [(ngModel)]="currentCustomer.notes"></textarea>
+          </div>
+
+          <footer class="drawer-footer">
+            <button type="button" class="btn-secondary" (click)="closeDrawer()">Cancel</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditMode ? 'Apply Updates' : 'Register Profile' }}
+            </button>
+          </footer>
+        </form>
+
+      </div>
+    </div>
+
+  </main>
+</div>

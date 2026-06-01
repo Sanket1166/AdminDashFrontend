@@ -1,0 +1,167 @@
+<div class="app-container">
+  <app-navigation></app-navigation>
+
+  <main class="main-content">
+    
+    <!-- Page Header -->
+    <header class="admin-header">
+      <div>
+        <h1 class="text-gradient">System Administrators</h1>
+        <p>Manage administrator credentials, system security access, and profile keys</p>
+      </div>
+      <button class="btn-primary" (click)="openAddDrawer()">
+        <span class="btn-icon">+</span> New Admin
+      </button>
+    </header>
+
+    <!-- Loading Panel -->
+    <div class="loader-overlay" *ngIf="isLoading() && admins().length === 0">
+      <div class="spinner"></div>
+      <p>Syncing security logs...</p>
+    </div>
+
+    <!-- Admin Accounts Grid List -->
+    <div class="table-container glass-panel" *ngIf="!isLoading() || admins().length > 0">
+      <table class="premium-table">
+        <thead>
+          <tr>
+            <th>Administrator</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Created At</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let admin of admins()">
+            <td>
+              <div class="admin-profile-cell">
+                <div class="admin-avatar">{{ admin.fullName.charAt(0) }}</div>
+                <div class="admin-name-details">
+                  <div class="name-text">
+                    {{ admin.fullName }}
+                    <span class="session-badge" *ngIf="currentUser()?._id === admin._id">You</span>
+                  </div>
+                  <div class="role-sub">{{ admin.role | uppercase }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="username-tag">&#64;{{ admin.username }}</span>
+            </td>
+            <td>
+              <span class="email-text">{{ admin.email }}</span>
+            </td>
+            <td>
+              <span class="date-text">{{ admin.createdAt | date:'mediumDate' }}</span>
+            </td>
+            <td style="text-align: right;">
+              <div class="table-actions">
+                <button class="action-btn edit" (click)="openEditDrawer(admin)" title="Edit Admin">
+                  ✏️
+                </button>
+                <button 
+                  class="action-btn delete" 
+                  [disabled]="currentUser()?._id === admin._id"
+                  [style.opacity]="currentUser()?._id === admin._id ? 0.3 : 1"
+                  (click)="onDeleteAdmin(admin)" 
+                  title="Remove Admin">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sliding Sidebar Drawer Form -->
+    <div class="drawer-overlay" [class.open]="isDrawerOpen" (click)="closeDrawer()">
+      <div class="drawer-panel glass-panel" (click)="$event.stopPropagation()">
+        
+        <header class="drawer-header">
+          <h2>{{ isEditMode ? 'Modify Admin Details' : 'Register Administrator' }}</h2>
+          <button class="close-btn" (click)="closeDrawer()">&times;</button>
+        </header>
+
+        <form (ngSubmit)="onSubmitForm()" class="drawer-form">
+          <!-- Username (disabled during edits) -->
+          <div class="form-group">
+            <label class="form-label" for="adm-username">Username *</label>
+            <input 
+              type="text" 
+              id="adm-username" 
+              name="username" 
+              class="form-input" 
+              placeholder="e.g. system_admin"
+              [disabled]="isEditMode"
+              [style.opacity]="isEditMode ? 0.6 : 1"
+              [(ngModel)]="adminModel.username" 
+              required>
+          </div>
+
+          <!-- Full Name -->
+          <div class="form-group">
+            <label class="form-label" for="adm-fullname">Full Name *</label>
+            <input 
+              type="text" 
+              id="adm-fullname" 
+              name="fullName" 
+              class="form-input" 
+              placeholder="e.g. John Doe"
+              [(ngModel)]="adminModel.fullName" 
+              required>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="adm-email">Email Address *</label>
+            <input 
+              type="email" 
+              id="adm-email" 
+              name="email" 
+              class="form-input" 
+              placeholder="e.g. john@portal.com"
+              [(ngModel)]="adminModel.email" 
+              required>
+          </div>
+
+          <!-- Password block (Optional during edits) -->
+          <div class="form-group">
+            <label class="form-label" for="adm-password">
+              Password {{ isEditMode ? '(leave blank to keep current)' : '*' }}
+            </label>
+            <input 
+              type="password" 
+              id="adm-password" 
+              name="password" 
+              class="form-input" 
+              placeholder="Enter secure password"
+              [(ngModel)]="adminModel.password">
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group" *ngIf="!isEditMode || adminModel.password">
+            <label class="form-label" for="adm-confirmpass">Confirm Password *</label>
+            <input 
+              type="password" 
+              id="adm-confirmpass" 
+              name="confirmPassword" 
+              class="form-input" 
+              placeholder="Verify password"
+              [(ngModel)]="adminModel.confirmPassword">
+          </div>
+
+          <footer class="drawer-footer">
+            <button type="button" class="btn-secondary" (click)="closeDrawer()">Cancel</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditMode ? 'Apply Updates' : 'Create Profile' }}
+            </button>
+          </footer>
+        </form>
+
+      </div>
+    </div>
+
+  </main>
+</div>
